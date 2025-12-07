@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuchen Rechner</title>
+
+    <!-- Manifest für PWA -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Grunddesign -->
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+            background: #fff8f2;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #d67a00;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 12px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #aaa;
+            margin-top: 5px;
+        }
+
+        .result {
+            padding: 10px;
+            border-radius: 8px;
+            background: #fff1dd;
+            margin-top: 15px;
+        }
+
+        .kuchenbild {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .kuchenbild img {
+            width: 170px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Kuchen Rechner</h1>
+
+<div class="kuchenbild">
+    <img src="https://i.imgur.com/eS4pX1R.png" alt="Comic-Kuchen">
+</div>
+
+<div class="card">
+    <label for="mehlInput">Mehlmenge (g):</label>
+    <input type="number" id="mehlInput" value="476" oninput="berechnen()">
+</div>
+
+<div class="card result" id="ergebnis">
+    <!-- Ergebnis erscheint hier -->
+</div>
+
+<div class="card">
+    <h3>Backformgrößen:</h3>
+    <p id="formen"></p>
+</div>
+
+<script>
+    // Originalwerte aus deinem Rezept
+    const basis = {
+        mehl: 476,
+        butter: 357,
+        zucker: 334,
+        eier: 7,
+        salz: 1,
+        milch: 198,
+        kakao: 4,
+        kakaoMilch: 4,
+        extraMilch: 75,
+        vollmilch: 200,
+        weiss: 200
+    };
+
+    // Grundfläche der ursprünglichen Form
+    const basisFlaeche = 30 * 35;
+
+    function berechnen() {
+        let mehlNeu = parseFloat(document.getElementById("mehlInput").value);
+
+        if (isNaN(mehlNeu) || mehlNeu <= 0) return;
+
+        let faktor = mehlNeu / basis.mehl;
+
+        // Berechnungen
+        let butter = Math.round(basis.butter * faktor);
+        let zucker = Math.round(basis.zucker * faktor);
+        let eier = (basis.eier * faktor).toFixed(1);
+        let salz = (basis.salz * faktor).toFixed(1);
+        let milch = Math.round(basis.milch * faktor);
+        let kakao = Math.round(basis.kakao * faktor);
+        let kakaoMilch = Math.round(basis.kakaoMilch * faktor);
+        let extraMilch = Math.round(basis.extraMilch * faktor);
+        let vollmilch = Math.round(basis.vollmilch * faktor);
+        let weiss = Math.round(basis.weiss * faktor);
+
+        // Ergebnis anzeigen
+        document.getElementById("ergebnis").innerHTML = `
+            <h3>Zutaten:</h3>
+            <p><b>Mehl:</b> ${mehlNeu} g</p>
+            <p><b>Butter:</b> ${butter} g</p>
+            <p><b>Zucker:</b> ${zucker} g</p>
+            <p><b>Eier:</b> ${eier}</p>
+            <p><b>Salz:</b> ${salz}</p>
+            <p><b>Milch:</b> ${milch} g</p>
+            <p><b>Kakao:</b> ${kakao} EL</p>
+            <p><b>Milch für Kakao:</b> ${kakaoMilch} EL</p>
+            <p><b>Zusätzliche Milch:</b> ${extraMilch} ml</p>
+            <p><b>Vollmilch-Kuvertüre:</b> ${vollmilch} g</p>
+            <p><b>Weiße Kuvertüre:</b> ${weiss} g</p>
+        `;
+
+        // Neue Fläche
+        let neueFlaeche = basisFlaeche * faktor;
+
+        // Quadrat-Seite
+        let seite = Math.sqrt(neueFlaeche).toFixed(1);
+
+        // Rundform-Durchmesser
+        let durchmesser = Math.sqrt(neueFlaeche / Math.PI * 4).toFixed(1);
+
+        document.getElementById("formen").innerHTML = `
+            <p><b>Ausgangsform:</b> 30 × 35 cm (≈ ${basisFlaeche} cm²)</p>
+            <p><b>Quadratische Form:</b> ${seite} cm Seitenlänge</p>
+            <p><b>Runde Form:</b> ${durchmesser} cm Durchmesser</p>
+        `;
+    }
+
+    berechnen();
+
+    // Service Worker für PWA
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js");
+    }
+</script>
+
+</body>
+</html>
